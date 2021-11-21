@@ -24,6 +24,7 @@ class _NightPhaseScreenState extends State<NightPhaseScreen> {
   bool killPhaseStarted = false;
   bool constablePhaseStarted = false;
   bool phaseFinished = false;
+  bool showDecision = false;
 
   @override
   void initState() {
@@ -46,6 +47,9 @@ class _NightPhaseScreenState extends State<NightPhaseScreen> {
       });
 
       await speakEndNightPhase(tts);
+      setState(() {
+        showDecision = true;
+      });
     } else {
       setState(() {
         constablePhaseStarted = true;
@@ -60,6 +64,7 @@ class _NightPhaseScreenState extends State<NightPhaseScreen> {
       phaseFinished = false;
       constablePhaseStarted = false;
       killPhaseStarted = false;
+      showDecision = false;
     });
 
     playersProvider.resetNight();
@@ -67,14 +72,32 @@ class _NightPhaseScreenState extends State<NightPhaseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String title = 'Night Phase';
+    if (phaseFinished) {
+      title = 'Phase Finished';
+    } else if (constablePhaseStarted) {
+      title = 'Constable Phase';
+    } else if (killPhaseStarted) {
+      title = 'Witch Phase';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Night Phase'),
+        title: Text(title),
       ),
       drawer: const MainDrawer(),
-      body: phaseFinished
-          ? const NightPhaseDecision()
-          : PlayersGrid(phase: constablePhaseStarted ? Phase.save : Phase.kill),
+      body: phaseFinished && !showDecision
+          ? const Center(
+              child: Icon(
+                CupertinoIcons.eyeglasses,
+                size: 200,
+              ),
+            )
+          : showDecision
+              ? const NightPhaseDecision()
+              : PlayersGrid(
+                  phase: constablePhaseStarted ? Phase.save : Phase.kill,
+                ),
       floatingActionButton: FloatingActionButton(
         onPressed: phaseFinished
             ? resetPhase
@@ -103,7 +126,7 @@ class NightPhaseDecision extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Duration timer = Duration(seconds: 5);
+    const Duration timer = Duration(seconds: 45);
 
     return SizedBox(
       width: double.infinity,
@@ -136,14 +159,7 @@ class NightPhaseDecision extends StatelessWidget {
               TweenAnimationBuilder<Duration>(
                 duration: timer,
                 tween: Tween(begin: timer, end: Duration.zero),
-                onEnd: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return const PlayerKilledDialog();
-                    },
-                  );
-                },
+                onEnd: () => showDecisionDialog(context),
                 builder: (BuildContext context, Duration value, Widget? child) {
                   final seconds = value.inSeconds % 60;
                   return Padding(
@@ -160,10 +176,24 @@ class NightPhaseDecision extends StatelessWidget {
                   );
                 },
               ),
+              const SizedBox(height: 15),
+              TextButton(
+                onPressed: () => showDecisionDialog(context),
+                child: const Text('Everyone confessed already'),
+              ),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Future<dynamic> showDecisionDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const PlayerKilledDialog();
+      },
     );
   }
 }
@@ -180,7 +210,9 @@ class PlayerKilledDialog extends StatelessWidget {
     return AlertDialog(
       title: const Text('The witches tried to kill:'),
       content: Text(
-        context.read<PlayersProvider>().killedPlayer(),
+        playersProvider.killedPlayer(),
+        style: Theme.of(context).textTheme.headline4,
+        textAlign: TextAlign.center,
       ),
       actions: [
         TextButton(
@@ -188,7 +220,10 @@ class PlayerKilledDialog extends StatelessWidget {
             playersProvider.resetNight();
             Navigator.of(context).pop();
           },
-          child: const Text('They are saved!'),
+          child: const Text(
+            'They are saved!',
+            style: TextStyle(color: Colors.green),
+          ),
         ),
         TextButton(
           onPressed: () {
@@ -197,7 +232,10 @@ class PlayerKilledDialog extends StatelessWidget {
 
             Navigator.of(context).pop();
           },
-          child: const Text('They are dead!'),
+          child: const Text(
+            'They are dead!',
+            style: TextStyle(color: Colors.red),
+          ),
         ),
       ],
     );

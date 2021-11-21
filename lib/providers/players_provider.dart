@@ -84,6 +84,8 @@ class PlayersProvider extends ChangeNotifier {
       element.isKilled = false;
       element.isOut = false;
     }
+
+    notifyListeners();
   }
 
   void resetBlackCat() {

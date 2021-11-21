@@ -90,7 +90,9 @@ class PlayersGrid extends StatelessWidget {
                           ) {
                             return Icon(
                               CupertinoIcons.xmark,
-                              color: Colors.red.shade300,
+                              color: phase == Phase.save
+                                  ? Colors.black
+                                  : Colors.red.shade300,
                               size: constraints.maxHeight,
                             );
                           },
