@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:text_to_speech/text_to_speech.dart';
 import 'package:witch_hunt_flutter/drawer.dart';
-import 'package:witch_hunt_flutter/moderator_scripts.dart';
+import 'package:witch_hunt_flutter/providers/players_provider.dart';
 import 'package:witch_hunt_flutter/screens/black_cat_phase_screen.dart';
 import 'package:witch_hunt_flutter/screens/night_phase_screen.dart';
 import 'package:witch_hunt_flutter/screens/players_screen.dart';
@@ -11,7 +10,11 @@ import 'package:witch_hunt_flutter/screens/rules.dart';
 void main() {
   runApp(
     MultiProvider(
-      providers: [],
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => PlayersProvider(),
+        ),
+      ],
       child: const MyApp(),
     ),
   );
