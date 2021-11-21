@@ -1,4 +1,5 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:witch_hunt_flutter/models/phases.dart';
@@ -15,6 +16,7 @@ class PlayersGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final PlayersProvider playersProvider = context.read<PlayersProvider>();
     final List<Player> players = context.watch<PlayersProvider>().players;
 
     return GridView.builder(
@@ -24,38 +26,87 @@ class PlayersGrid extends StatelessWidget {
       itemCount: players.length,
       itemBuilder: (BuildContext context, int index) {
         final Player player = players[index];
+        late Color color;
+        switch (phase) {
+          case Phase.blackCat:
+            color = player.hasBlackCat
+                ? Colors.red.shade300
+                : Colors.brown.shade300;
+            break;
+          case Phase.kill:
+            color =
+                player.isKilled ? Colors.red.shade300 : Colors.brown.shade300;
+            break;
+          case Phase.save:
+            color =
+                player.isSaved ? Colors.green.shade300 : Colors.red.shade300;
+            break;
+        }
+
         return Padding(
           padding: const EdgeInsets.all(1.5),
           child: InkWell(
             onTap: () {
+              if (player.isOut) {
+                return;
+              }
+
               switch (phase) {
                 case Phase.blackCat:
-                  context.read<PlayersProvider>().toggleBlackCat(player);
+                  playersProvider.toggleBlackCat(player);
                   break;
                 case Phase.kill:
-                  // TODO: Handle this case.
+                  playersProvider.toggleKill(player);
                   break;
                 case Phase.save:
-                  // TODO: Handle this case.
+                  playersProvider.toggleSave(player);
                   break;
               }
             },
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(),
-                borderRadius: BorderRadius.circular(20),
-                color: player.hasBlackCat
-                    ? Colors.red.shade300
-                    : Colors.brown.shade300,
-              ),
-              padding: const EdgeInsets.all(8),
-              child: Center(
-                child: AutoSizeText(
-                  player.name,
-                  maxLines: 1,
-                  style: const TextStyle(fontSize: 50),
+            child: Stack(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(20),
+                    color: color,
+                  ),
+                  padding: const EdgeInsets.all(8),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Center(
+                        child: AutoSizeText(
+                          player.name,
+                          maxLines: 1,
+                          style: const TextStyle(fontSize: 50),
+                        ),
+                      ),
+                      if (player.isOut) ...[
+                        LayoutBuilder(
+                          builder: (
+                            BuildContext context,
+                            BoxConstraints constraints,
+                          ) {
+                            return Icon(
+                              CupertinoIcons.xmark,
+                              color: Colors.red.shade300,
+                              size: constraints.maxHeight,
+                            );
+                          },
+                        ),
+                      ]
+                    ],
+                  ),
                 ),
-              ),
+                if (player.isOut)
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Colors.black54,
+                    ),
+                  )
+              ],
             ),
           ),
         );

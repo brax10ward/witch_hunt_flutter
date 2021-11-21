@@ -39,7 +39,7 @@ class _BlackCatPhaseScreenState extends State<BlackCatPhaseScreen> {
   }
 
   void endPhase() async {
-    await speakEndScript(tts);
+    await speakEndBlackCat(tts);
 
     setState(() {
       phaseFinished = true;
