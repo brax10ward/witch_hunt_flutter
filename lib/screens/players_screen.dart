@@ -16,6 +16,12 @@ class PlayersScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: FocusScope.of(context).unfocus,
+            icon: const Icon(Icons.check),
+          ),
+        ],
         title: const Text('Players'),
       ),
       body: Column(
@@ -54,6 +60,7 @@ class AddPlayerField extends StatefulWidget {
 
 class _AddPlayerFieldState extends State<AddPlayerField> {
   final TextEditingController controller = TextEditingController();
+  final FocusNode focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -62,10 +69,13 @@ class _AddPlayerFieldState extends State<AddPlayerField> {
       child: TextFormField(
         controller: controller,
         decoration: const InputDecoration(hintText: 'Add Player'),
+        focusNode: focusNode,
         onFieldSubmitted: (String playerName) {
           context.read<PlayersProvider>().addPlayer(playerName);
           controller.clear();
+          focusNode.requestFocus();
         },
+        showCursor: true,
       ),
     );
   }
