@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:witch_hunt_flutter/drawer.dart';
 import 'package:witch_hunt_flutter/models/player.dart';
@@ -71,10 +72,14 @@ class _AddPlayerFieldState extends State<AddPlayerField> {
         decoration: const InputDecoration(hintText: 'Add Player'),
         focusNode: focusNode,
         onFieldSubmitted: (String playerName) {
-          context.read<PlayersProvider>().addPlayer(playerName);
-          controller.clear();
-          focusNode.requestFocus();
+          if (playerName.isNotEmpty) {
+            context.read<PlayersProvider>().addPlayer(playerName);
+            controller.clear();
+            focusNode.requestFocus();
+          }
         },
+        textCapitalization: TextCapitalization.words,
+        textInputAction: TextInputAction.send,
         showCursor: true,
       ),
     );
