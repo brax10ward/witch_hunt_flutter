@@ -25,25 +25,32 @@ class PlayersScreen extends StatelessWidget {
         ],
         title: const Text('Players'),
       ),
-      body: Column(
-        children: [
-          const AddPlayerField(),
-          ListView.builder(
-            itemCount: players.length,
-            itemBuilder: (BuildContext context, int index) {
-              final Player player = players[index];
-              return ListTile(
-                title: Text(player.name),
-                trailing: IconButton(
-                  onPressed: () =>
-                      context.read<PlayersProvider>().removePlayer(player),
-                  icon: const Icon(CupertinoIcons.xmark_circle_fill),
-                ),
-              );
-            },
-            shrinkWrap: true,
-          ),
-        ],
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return <Widget>[
+            const SliverAppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.white,
+              pinned: true,
+              flexibleSpace: AddPlayerField(),
+            )
+          ];
+        },
+        body: ListView.builder(
+          itemCount: players.length,
+          itemBuilder: (BuildContext context, int index) {
+            final Player player = players[index];
+            return ListTile(
+              title: Text(player.name),
+              trailing: IconButton(
+                onPressed: () =>
+                    context.read<PlayersProvider>().removePlayer(player),
+                icon: const Icon(CupertinoIcons.xmark_circle_fill),
+              ),
+            );
+          },
+          shrinkWrap: true,
+        ),
       ),
       drawer: const MainDrawer(),
     );
